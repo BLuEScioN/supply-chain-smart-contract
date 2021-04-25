@@ -1,3 +1,5 @@
+Contract Address
+
 Deploying 'SupplyChain'
    -----------------------
    > transaction hash:    0x49da98d8d078357c1b1aa88069415a9ba9422f20dc03793bf3ed09579b206e5c
@@ -11,3 +13,15 @@ Deploying 'SupplyChain'
    > gas price:           10 gwei
    > value sent:          0 ETH
    > total cost:          0.02758105 ETH
+
+No libararies were used, besides Roles.sol. Roles.sol was used to provide common functionality to all access control contracts.
+
+IPFS was not used
+
+Program Version Numbers?
+
+Node Version: v10.15.3
+
+Truffle Version: v5.1.65
+
+Web3 Version: v1.2.9
