@@ -1,4 +1,4 @@
-const HDWalletProvider = require('truffle-hdwallet-provider');
+const HDWalletProvider = require('@truffle/hdwallet-provider');
 const infuraKey = require('./.env').infuraKey;
 const mnemonic = require('./.env').mnemonic;
 
@@ -19,7 +19,7 @@ module.exports = {
    // Configure your compilers
    compilers: {
     solc: {
-        version: "^0.4.24",    // Fetch exact version from solc-bin (default: truffle's version)
+        version: "^0.8.0",    // Fetch exact version from solc-bin (default: truffle's version)
 
       // version: "0.5.1",    // Fetch exact version from solc-bin (default: truffle's version)
     //   docker: true,        // Use "0.5.1" you've installed locally with docker (default: false)

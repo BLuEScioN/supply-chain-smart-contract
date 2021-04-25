@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.3;
+pragma solidity ^0.8.0;
 
 // Import the library 'Roles'
 import "./Roles.sol";
@@ -16,19 +16,19 @@ contract ConsumerRole {
     Roles.Role consumers;
 
     // In the constructor make the address that deploys this contract the 1st consumer
-    constructor() public {
-        addConsumer(msg.sender);
+    constructor() {
+        _addConsumer(msg.sender);
     }
 
     // Define a modifier that checks to see if msg.sender has the appropriate role
     modifier onlyConsumer() {
-        require(isConsumer(account));
+        require(isConsumer(msg.sender));
         _;
     }
 
     // Define a function 'isConsumer' to check this role
     function isConsumer(address account) public view returns (bool) {
-        consumers.has(account);
+        return consumers.has(account);
     }
 
     // Define a function 'addConsumer' that adds this role
@@ -37,7 +37,7 @@ contract ConsumerRole {
     }
 
     // Define a function 'renounceConsumer' to renounce this role
-    function renounceConsumer() public {
+    function renounceConsumer(address account) public {
         _removeConsumer(account);
     }
 

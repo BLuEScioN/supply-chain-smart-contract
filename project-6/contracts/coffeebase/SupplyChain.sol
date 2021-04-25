@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.4.24;
+pragma solidity ^0.8.0;
 
-import "../coffeeaccesscontrol/Farmer.sol";
-import "../coffeeaccesscontrol/Distributor.sol";
-import "../coffeeaccesscontrol/Retailer.sol";
-import "../coffeeaccesscontrol/Consumer.sol";
+import '../coffeeaccesscontrol/FarmerRole.sol';
+import '../coffeeaccesscontrol/DistributorRole.sol';
+import '../coffeeaccesscontrol/RetailerRole.sol';
+import '../coffeeaccesscontrol/ConsumerRole.sol';
+import '../coffeecore/Ownable.sol';
 
 // Define a contract 'Supplychain'
 contract SupplyChain is
@@ -74,10 +75,10 @@ contract SupplyChain is
     event Purchased(uint256 upc);
 
     // A modifer that checks to see if msg.sender == owner of the contract
-    modifier onlyOwner() {
-        require(msg.sender == owner);
-        _;
-    }
+    // modifier onlyOwner() {
+    //     require(msg.sender == owner);
+    //     _;
+    // }
 
     // A modifer that verifies the Caller
     modifier verifyCaller(address _address) {
@@ -96,7 +97,7 @@ contract SupplyChain is
         _;
         uint256 _price = items[_upc].productPrice;
         uint256 amountToReturn = msg.value - _price;
-        items[_upc].consumerID.transfer(amountToReturn);
+        payable(items[_upc].consumerID).transfer(amountToReturn);
     }
 
     // A modifier that checks if an item.state of a upc is Harvested
@@ -150,7 +151,7 @@ contract SupplyChain is
     // In the constructor set 'owner' to the address that instantiated the contract
     // and set 'sku' to 1
     // and set 'upc' to 1
-    constructor() public payable {
+    constructor() payable {
         owner = msg.sender;
         sku = 1;
         upc = 1;
@@ -159,7 +160,7 @@ contract SupplyChain is
     // Define a function 'kill' if required
     function kill() public {
         if (msg.sender == owner) {
-            selfdestruct(owner);
+            selfdestruct(payable(owner));
         }
     }
 
@@ -167,27 +168,25 @@ contract SupplyChain is
     function harvestItem(
         uint256 _upc,
         address _originFarmerID,
-        string _originFarmName,
-        string _originFarmInformation,
-        string _originFarmLatitude,
-        string _originFarmLongitude,
-        string _productNotes
+        string memory _originFarmerName,
+        string memory _originFarmerInformation,
+        string memory _originFarmLatitude,
+        string memory _originFarmLongitude,
+        string memory _productNotes
     ) public onlyFarmer {
-        Item item = items[_upc];
-        require(item, "Item for _upc does not exist");
         // Add the new item as part of Harvest
         items[_upc].sku = sku;
         items[_upc].upc = upc;
-        item.itemState = State.Harvested;
-        // check parameter values?
-        item.originFarmerID = _originFarmerId;
-        item.originFarmerName = _originFarmerName;
-        item.originFarmerInformation = _originFarmerInformation;
-        item.originFarmLatitude = _originFarmLatitude;
-        item.originFarmLongitude = _originFarmLongitude;
-        item.productNotes = _productNotes;
+        items[_upc].itemState = State.Harvested;
+        items[_upc].ownerID = _originFarmerID;
+        items[_upc].originFarmerID = _originFarmerID;
+        items[_upc].originFarmName = _originFarmerName;
+        items[_upc].originFarmInformation = _originFarmerInformation;
+        items[_upc].originFarmLatitude = _originFarmLatitude;
+        items[_upc].originFarmLongitude = _originFarmLongitude;
+        items[_upc].productNotes = _productNotes;
         items[_upc].productID = _upc + sku;
-
+        items[_upc].itemState = State.Harvested;
         // Increment sku
         sku = sku + 1;
         // Emit the appropriate event
@@ -204,9 +203,7 @@ contract SupplyChain is
         onlyFarmer
     {
         // Update the appropriate fields
-        Item item = items[_upc];
-        require(item, "Item for _upc does not exist");
-        item.itemState = State.Processed;
+        items[_upc].itemState = State.Processed;
         // Emit the appropriate event
         emit Processed(_upc);
     }
@@ -221,9 +218,7 @@ contract SupplyChain is
         verifyCaller(items[_upc].ownerID)
     {
         // Update the appropriate fields
-        Item item = items[_upc];
-        require(item, "Item for _upc does not exist");
-        item.itemState = State.Packed;
+        items[_upc].itemState = State.Packed;
 
         // Emit the appropriate event
         emit Packed(_upc);
@@ -239,9 +234,8 @@ contract SupplyChain is
         packed(_upc)
     {
         // Update the appropriate fields
-        Item item = items[_upc];
-        require(item, "Item for _upc does not exist");
-        item.itemState = State.ForSale;
+        items[_upc].itemState = State.ForSale;
+        items[_upc].productPrice = _price;
 
         // Emit the appropriate event
         emit ForSale(_upc);
@@ -263,14 +257,12 @@ contract SupplyChain is
         checkValue(_upc)
     {
         // Update the appropriate fields - ownerID, distributorID, itemState
-        Item item = items[_upc];
-        require(item, "Item for _upc does not exist");
-        item.ownerID = msg.sender;
-        item.distributorID = msg.sender;
-        item.itemState = State.Sold;
+        items[_upc].ownerID = msg.sender;
+        items[_upc].distributorID = msg.sender;
+        items[_upc].itemState = State.Sold;
 
         // Transfer money to farmer
-        msg.sender.transfer(item.productPrice);
+        payable(msg.sender).transfer(items[_upc].productPrice);
 
         // emit the appropriate event
         emit Sold(_upc);
@@ -287,9 +279,7 @@ contract SupplyChain is
         verifyCaller(items[_upc].ownerID)
     {
         // Update the appropriate fields
-        Item item = items[_upc];
-        require(item, "Item for _upc does not exist");
-        item.itemState = State.Shipped;
+        items[_upc].itemState = State.Shipped;
 
         // emit the appropriate event
         emit Shipped(_upc);
@@ -301,11 +291,9 @@ contract SupplyChain is
     // Access Control List enforced by calling Smart Contract / DApp
     function receiveItem(uint256 _upc) public shipped(_upc) onlyRetailer {
         // Update the appropriate fields - ownerID, retailerID, itemState
-        Item item = items[_upc];
-        require(item, "Item for _upc does not exist");
-        item.ownerID = msg.sender;
-        item.retailerID = msg.sender;
-        item.itemState = State.Received;
+        items[_upc].ownerID = msg.sender;
+        items[_upc].retailerID = msg.sender;
+        items[_upc].itemState = State.Received;
 
         // Emit the appropriate event
         emit Received(_upc);
@@ -317,11 +305,9 @@ contract SupplyChain is
     // Access Control List enforced by calling Smart Contract / DApp
     function purchaseItem(uint256 _upc) public onlyConsumer received(_upc) {
         // Update the appropriate fields - ownerID, consumerID, itemState
-        Item item = items[_upc];
-        require(item, "Item for _upc does not exist");
-        item.ownerID = msg.sender;
-        item.consumerID = msg.sender;
-        item.itemState = State.Purchased;
+        items[_upc].ownerID = msg.sender;
+        items[_upc].consumerID = msg.sender;
+        items[_upc].itemState = State.Purchased;
 
         // Emit the appropriate event
         emit Purchased(_upc);
@@ -336,10 +322,10 @@ contract SupplyChain is
             uint256 itemUPC,
             address ownerID,
             address originFarmerID,
-            string originFarmName,
-            string originFarmInformation,
-            string originFarmLatitude,
-            string originFarmLongitude
+            string memory originFarmName,
+            string memory originFarmInformation,
+            string memory originFarmLatitude,
+            string memory originFarmLongitude
         )
     {
         // Assign values to the 8 parameters
@@ -347,8 +333,8 @@ contract SupplyChain is
         itemUPC = items[_upc].upc;
         ownerID = items[_upc].ownerID;
         originFarmerID = items[_upc].originFarmerID;
-        originFarmName = items[_upc].originFarmerName;
-        originFarmInformation = items[_upc].originFarmerInformation;
+        originFarmName = items[_upc].originFarmName;
+        originFarmInformation = items[_upc].originFarmInformation;
         originFarmLatitude = items[_upc].originFarmLatitude;
         originFarmLongitude = items[_upc].originFarmLongitude;
 
@@ -372,9 +358,9 @@ contract SupplyChain is
             uint256 itemSKU,
             uint256 itemUPC,
             uint256 productID,
-            string productNotes,
+            string memory productNotes,
             uint256 productPrice,
-            uint256 itemState,
+            State itemState,
             address distributorID,
             address retailerID,
             address consumerID

@@ -1,0 +1,13 @@
+Deploying 'SupplyChain'
+   -----------------------
+   > transaction hash:    0x49da98d8d078357c1b1aa88069415a9ba9422f20dc03793bf3ed09579b206e5c
+   > Blocks: 1            Seconds: 13
+   > contract address:    0x94D02E026c3D17eFad4c69eFd464b81ad7bAee53
+   > block number:        8467716
+   > block timestamp:     1619250053
+   > account:             0xe489CB5c4e0F34409A1Bc7d7984Eb2aDEF8C2093
+   > balance:             10.493113123
+   > gas used:            2758105 (0x2a15d9)
+   > gas price:           10 gwei
+   > value sent:          0 ETH
+   > total cost:          0.02758105 ETH

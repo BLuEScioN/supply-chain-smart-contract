@@ -320,16 +320,16 @@ App = {
         if (typeof App.contracts.SupplyChain.currentProvider.sendAsync !== "function") {
             App.contracts.SupplyChain.currentProvider.sendAsync = function () {
                 return App.contracts.SupplyChain.currentProvider.send.apply(
-                App.contracts.SupplyChain.currentProvider,
+                    App.contracts.SupplyChain.currentProvider,
                     arguments
-              );
+                );
             };
         }
 
         App.contracts.SupplyChain.deployed().then(function(instance) {
-        var events = instance.allEvents(function(err, log){
-          if (!err)
-            $("#ftc-events").append('<li>' + log.event + ' - ' + log.transactionHash + '</li>');
+            var events = instance.allEvents(function(err, log){
+            if (!err)
+                $("#ftc-events").append('<li>' + log.event + ' - ' + log.transactionHash + '</li>');
         });
         }).catch(function(err) {
           console.log(err.message);

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.3;
+pragma solidity ^0.8.0;
 
 // Import the library 'Roles'
 import "./Roles.sol";
@@ -7,6 +7,7 @@ import "./Roles.sol";
 // Define a contract 'DistributorRole' to manage this role - add, remove, check
 contract DistributorRole {
     using Roles for Roles.Role;
+
     // Define 2 events, one for Adding, and other for Removing
     event DistributorAdded(address account);
     event DistributorRemoved(address account);
@@ -15,8 +16,8 @@ contract DistributorRole {
     Roles.Role private distributors;
 
     // In the constructor make the address that deploys this contract the 1st distributor
-    constructor() public {
-        addDistributor(account);
+    constructor() {
+        _addDistributor(msg.sender);
     }
 
     // Define a modifier that checks to see if msg.sender has the appropriate role
@@ -36,7 +37,7 @@ contract DistributorRole {
     }
 
     // Define a function 'renounceDistributor' to renounce this role
-    function renounceDistributor() public {
+    function renounceDistributor(address account) public {
         _removeDistributor(account);
     }
 
